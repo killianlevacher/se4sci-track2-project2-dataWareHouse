@@ -1,5 +1,6 @@
 import configparser
-
+#IMPORTANT
+# Database errors can be found by running the query "select * from stl_load_errors" in the Redshift query editor
 
 # CONFIG
 config = configparser.ConfigParser()
@@ -54,15 +55,16 @@ staging_songs_table_create = ("""
 );
 """)
 
+                              
 staging_events_table_create= ("""
     CREATE TABLE "staging_event_table" (
-    "artist" character varying(15) NOT NULL,
-    "auth" character varying(15) NOT NULL,
-    "firstName" character varying(15) NOT NULL,
-    "gender" character varying(15) NOT NULL,
-    "itemInSession" integer NOT NULL,
-    "lastName" character varying(15) NOT NULL,
-    "length" double precision NOT NULL,
+    "artist" character varying(15) ,
+    "auth" character varying(15) ,
+    "firstName" character varying(15) ,
+    "gender" character varying(15) ,
+    "itemInSession" integer ,
+    "lastName" character varying(15) ,
+    "length" double precision ,
     "level" character varying(15),
     "location" character varying(15),
     "method" character varying(15),
@@ -71,13 +73,27 @@ staging_events_table_create= ("""
     "sessionId" integer,
     "song" character varying(15),
     "status" integer,
-    "ts" integer,
+    "ts" BIGINT,
     "userAgent" character varying(15),
-    "userId" integer NOT NULL
+    "userId" integer 
 );
 """)
 
+# ### **Fact Table**
 
+# 1. **songplays** - records in event data associated with song plays i.e. records with page `NextSong`
+#     - *songplay_id, start_time, user_id, level, song_id, artist_id, session_id, location, user_agent*
+
+# ### **Dimension Tables**
+
+# 1. **users** - users in the app
+#     - *user_id, first_name, last_name, gender, level*
+# 2. **songs** - songs in music database
+#     - *song_id, title, artist_id, year, duration*
+# 3. **artists** - artists in music database
+#     - *artist_id, name, location, lattitude, longitude*
+# 4. **time** - timestamps of records in **songplays** broken down into specific units
+#     - *start_time, hour, day, week, month, year, weekday*
 
 songplay_table_create = ("""
 """)
@@ -115,6 +131,14 @@ time_table_create = ("""
 #     credentials 'aws_iam_role={}'
 #     gzip delimiter ';' compupdate off region 'us-west-2';
 # """.format(DWH_ROLE_ARN)
+
+
+# SELECT * FROM stl_query
+
+
+# stl_query SELECT *
+# FROM stl_load_errors
+# WHERE query = <query ID>;
 
 staging_events_copy = ("""
     COPY staging_event_table
