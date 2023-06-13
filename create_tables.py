@@ -6,6 +6,7 @@ from sql_queries import create_table_queries, drop_table_queries
 def drop_tables(cur, conn):
     print("Dropping Tables")
     for query in drop_table_queries:
+        print("QUERY: {}".format(query))
         cur.execute(query)
         conn.commit()
 
@@ -13,6 +14,7 @@ def drop_tables(cur, conn):
 def create_tables(cur, conn):
     print("Creating Tables")
     for query in create_table_queries:
+        print("QUERY: {}".format(query))
         if query.strip() != "":
             cur.execute(query)
             conn.commit()

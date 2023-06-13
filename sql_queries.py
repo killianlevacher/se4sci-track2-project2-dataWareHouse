@@ -95,9 +95,39 @@ time_table_create = ("""
 """)
 
 # COPY Queries from S3 bucket into STAGING TABLES
+# [IAM_ROLE]
+# ARN='project2User'
+# [S3]
+# LOG_DATA='s3://udacity-dend/log_data'
+
+
+# COPY staging_events
+#     FROM {}
+#     iam_role '{}'
+#     region 'us-west-2'
+#     TIMEFORMAT AS 'epochmillisecs'
+#     JSON {};
+
+# load partitioned data into the cluster
+# from 2-cloudDataWarehouses/4- implementing A DataWarehouseOnAWS/L3 Exercise 3 - Parallel ETL - Solution.ipynb
+# qry = """
+#     copy sporting_event_ticket from 's3://udacity-labs/tickets/split/part'
+#     credentials 'aws_iam_role={}'
+#     gzip delimiter ';' compupdate off region 'us-west-2';
+# """.format(DWH_ROLE_ARN)
 
 staging_events_copy = ("""
-""").format()
+    COPY staging_events
+    FROM {}
+    iam_role '{}'
+    region 'us-west-2'
+    TIMEFORMAT AS 'epochmillisecs'
+    JSON {};
+""").format(config['S3']['LOG_DATA'], 
+            config['IAM_ROLE']['ARN'],
+            config['S3']['LOG_JSONPATH'])
+
+
 
 staging_songs_copy = ("""
 """).format()
