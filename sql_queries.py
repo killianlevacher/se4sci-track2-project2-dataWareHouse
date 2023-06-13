@@ -7,15 +7,15 @@ config.read('dwh.cfg')
 
 # DROP TABLES
 
-staging_events_table_drop = "DROP TABLE IF EXISTS 'sporting_event_ticket';"
-staging_songs_table_drop = "DROP TABLE IF EXISTS 'staging_songs_table_drop';"
-songplay_table_drop = "DROP TABLE IF EXISTS 'songplay_table_drop';"
-user_table_drop = "DROP TABLE IF EXISTS 'user_table_drop';"
-song_table_drop = "DROP TABLE IF EXISTS 'song_table_drop';"
-artist_table_drop = "DROP TABLE IF EXISTS 'artist_table_drop';"
-time_table_drop = "DROP TABLE IF EXISTS 'time_table_drop';"
+staging_events_table_drop = "DROP TABLE IF EXISTS staging_event_table;"
+staging_songs_table_drop = "DROP TABLE IF EXISTS staging_song_table;"
+songplay_table_drop = "DROP TABLE IF EXISTS songplay_table;"
+user_table_drop = "DROP TABLE IF EXISTS user_table;"
+song_table_drop = "DROP TABLE IF EXISTS song_table;"
+artist_table_drop = "DROP TABLE IF EXISTS artist_table;"
+time_table_drop = "DROP TABLE IF EXISTS time_table;"
 
-# CREATE TABLES
+# CREATE TABLES to create all tables
 
 # CREATE TABLE "sporting_event_ticket" (
 #     "id" double precision DEFAULT nextval('sporting_event_ticket_seq') NOT NULL,
@@ -29,13 +29,33 @@ time_table_drop = "DROP TABLE IF EXISTS 'time_table_drop';"
 #     "ticket_price" numeric(8,2) NOT NULL
 # );
 
-staging_events_table_create= ("""
+# {"num_songs": 1, 
+# "artist_id": "ARJIE2Y1187B994AB7", 
+# "artist_latitude":null, 
+# "artist_longitude":null, 
+# "artist_location": "", 
+# "artist_name": "Line Renaud", 
+# "song_id": "SOUPIRU12A6D4FA1E1", 
+# "title": "Der Kleine Dompfaff", 
+# "duration": 152.92036, 
+# "year": 0}
 
-
-""")
 
 staging_songs_table_create = ("""
     CREATE TABLE "staging_song_table" (
+    "artist_id" character varying(15) NOT NULL,
+    "artist_latitude" character varying(15) NOT NULL,
+    "artist_longitude" character varying(15) NOT NULL,
+    "artist_name" character varying(15) NOT NULL,
+    "song_id" character varying(15) NOT NULL,
+    "title" character varying(15) NOT NULL,
+    "duration" double precision NOT NULL,
+    "year" integer
+);
+""")
+
+staging_events_table_create= ("""
+    CREATE TABLE "staging_event_table" (
     "artist" character varying(15) NOT NULL,
     "auth" character varying(15) NOT NULL,
     "firstName" character varying(15) NOT NULL,
@@ -57,6 +77,8 @@ staging_songs_table_create = ("""
 );
 """)
 
+
+
 songplay_table_create = ("""
 """)
 
@@ -72,7 +94,7 @@ artist_table_create = ("""
 time_table_create = ("""
 """)
 
-# STAGING TABLES
+# COPY Queries from S3 bucket into STAGING TABLES
 
 staging_events_copy = ("""
 """).format()
@@ -80,7 +102,7 @@ staging_events_copy = ("""
 staging_songs_copy = ("""
 """).format()
 
-# FINAL TABLES
+# INSERT QUERIES to create FINAL TABLES
 
 songplay_table_insert = ("""
 """)
@@ -99,10 +121,16 @@ time_table_insert = ("""
 
 # QUERY LISTS
 
-create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, 
-                        user_table_create, song_table_create, artist_table_create, time_table_create]
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop,
                        song_table_drop, artist_table_drop, time_table_drop]
+
+#Query that creates all the tables needed staging AND Fact and Dimension tables
+create_table_queries = [staging_events_table_create, staging_songs_table_create, 
+                        songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
+
+# Query to copy data from the s3 buckets into the 2 staging tables
 copy_table_queries = [staging_events_copy, staging_songs_copy]
+
+# Query that inserts in the Fact and Dimension tables data that was copied within the staging tables
 insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, 
                         time_table_insert]
