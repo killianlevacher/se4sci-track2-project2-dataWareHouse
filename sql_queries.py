@@ -117,9 +117,9 @@ time_table_create = ("""
 # """.format(DWH_ROLE_ARN)
 
 staging_events_copy = ("""
-    COPY staging_events
+    COPY staging_event_table
     FROM {}
-    iam_role '{}'
+    iam_role {}
     region 'us-west-2'
     TIMEFORMAT AS 'epochmillisecs'
     JSON {};
