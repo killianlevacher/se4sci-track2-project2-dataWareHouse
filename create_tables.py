@@ -14,8 +14,8 @@ def drop_tables(cur, conn):
 def create_tables(cur, conn):
     print("Creating Tables")
     for query in create_table_queries:
-        print("QUERY: {}".format(query))
         if query.strip() != "":
+            print("QUERY: {}".format(query))
             cur.execute(query)
             conn.commit()
 
