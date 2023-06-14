@@ -75,19 +75,7 @@ staging_events_table_create= ("""
 ##### TODO Make sure to create primary keys
 # TODO find out what start time is from ts in 'epochmillisecs'
 # TODO songplay_id should be auto generated 
-songplay_table_create = ("""
-    CREATE TABLE "songplay_table" (
-    "-----songplay_id" BIGINT NOT NULL,
-    "start_time" BIGINT,
-    "user_id" integer NOT NULL,
-    "level" character varying(15) NOT NULL,
-    "song_id" character varying(15) NOT NULL,
-    "artist_id" character varying(15) NOT NULL,
-    "session_id" integer,
-    "location" character varying(50),
-    "user_agent" character varying(15)
-);
-""")
+
                          
 
 
@@ -97,7 +85,8 @@ user_table_create = ("""
     "first_name" character varying(15),
     "last_name" character varying(15) ,
     "gender" character varying(15),
-    "level" character varying(15) 
+    "level" character varying(15),
+    PRIMARY KEY (user_id)
 );
 """)
                      
@@ -108,7 +97,8 @@ song_table_create = ("""
     "title" character varying(15) NOT NULL,
     "artist_id" character varying(15) NOT NULL,
     "year" integer,
-    "duration" double precision
+    "duration" double precision,
+    PRIMARY KEY (song_id)
 );
 """)
                      
@@ -120,7 +110,8 @@ artist_table_create = ("""
     "artist_name" character varying(15) NOT NULL,
     "location" character varying(50) NOT NULL,
     "lattitude" character varying(15) NOT NULL,
-    "longitude" character varying(15) 
+    "longitude" character varying(15),
+    PRIMARY KEY (artist_id)
 );
 """)
                        
@@ -134,7 +125,26 @@ time_table_create = ("""
     "week" integer,
     "month" integer,
     "year" integer,
-    "weekday" double precision
+    "weekday" double precision,
+    PRIMARY KEY (start_time)
+);
+""")
+                     
+songplay_table_create = ("""
+    CREATE TABLE "songplay_table" (
+    "-----songplay_id" BIGINT NOT NULL,
+    "start_time" BIGINT,
+    "user_id" integer NOT NULL,
+    "level" character varying(15) NOT NULL,
+    "song_id" character varying(15) NOT NULL,
+    "artist_id" character varying(15) NOT NULL,
+    "session_id" integer,
+    "location" character varying(50),
+    "user_agent" character varying(15),
+    CONSTRAINT user_session_iid PRIMARY KEY (user_id,session_id),
+    FOREIGN KEY (user_id) REFERENCES user_table(user_id),
+    FOREIGN KEY (song_id) REFERENCES song_table(song_id),
+    FOREIGN KEY (artist_id) REFERENCES artist_table(artist_id)
 );
 """)
                      
@@ -144,7 +154,7 @@ drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songp
 
 #Query that creates all the tables needed staging AND Fact and Dimension tables
 create_table_queries = [staging_events_table_create, staging_songs_table_create, 
-                        songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
+                        user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create, ]
 
 
 
