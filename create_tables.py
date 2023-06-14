@@ -94,10 +94,10 @@ songplay_table_create = ("""
 user_table_create = ("""
     CREATE TABLE "user_table" (
     "user_id" integer,
-    "first_name" character varying(15) NOT NULL,
-    "last_name" character varying(15) NOT NULL,
-    "gender" character varying(15) NOT NULL,
-    "level" character varying(15) NOT NULL
+    "first_name" character varying(15),
+    "last_name" character varying(15) ,
+    "gender" character varying(15),
+    "level" character varying(15) 
 );
 """)
                      
