@@ -60,8 +60,7 @@ config.read('dwh.cfg')
 
 song_table_insert = ("""
 INSERT INTO song_table (song_id, title, artist_id, year, duration)
-SELECT DISTINCT(e.artist_id) AS artist_id,
-       e.song_id AS song_id,
+SELECT DISTINCT(e.song_id) AS song_id,
        e.title AS title,
        e.artist_id AS artist_id,
        e.year AS year,
