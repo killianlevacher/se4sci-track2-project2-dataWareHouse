@@ -63,10 +63,12 @@ TIMEFORMAT AS 'epochmillisecs';
 # """)
 
 user_table_insert = ("""
-INSERT INTO user_table (user_id, first_name, last_name)
+INSERT INTO user_table (user_id, first_name, last_name, gender, level)
 SELECT DISTINCT(e.userId) AS userId,
        e.firstName AS first_name,
-       e.lastName AS last_name
+       e.lastName AS last_name,
+       e.gender AS gender,
+       e.level AS level
 FROM staging_event_table e
 Where e.userId is not null
 """)
