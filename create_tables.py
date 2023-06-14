@@ -81,7 +81,7 @@ staging_events_table_create= ("""
 
 user_table_create = ("""
     CREATE TABLE "user_table" (
-    "user_id" integer,
+    "user_id" integer NOT NULL,
     "first_name" character varying(15),
     "last_name" character varying(15) ,
     "gender" character varying(15),
@@ -106,11 +106,11 @@ song_table_create = ("""
 
 artist_table_create = ("""
     CREATE TABLE "artist_table" (
-    "artist_id" character varying(15) NOT NULL,
-    "artist_name" character varying(15) NOT NULL,
-    "location" character varying(50) NOT NULL,
-    "lattitude" character varying(15) NOT NULL,
-    "longitude" character varying(15),
+    "artist_id" varchar NOT NULL,
+    "artist_name" varchar,
+    "location" varchar,
+    "lattitude" varchar,
+    "longitude" varchar,
     PRIMARY KEY (artist_id)
 );
 """)
@@ -119,7 +119,7 @@ artist_table_create = ("""
 # TODO find out what start time is from ts in 'epochmillisecs'
 time_table_create = ("""
     CREATE TABLE "time_table" (
-    "start_time" BIGINT,
+    "start_time" BIGINT NOT NULL,
     "hour" integer,
     "day" integer,
     "week" integer,
@@ -135,7 +135,7 @@ songplay_table_create = ("""
     "-----songplay_id" BIGINT NOT NULL,
     "start_time" BIGINT,
     "user_id" integer NOT NULL,
-    "level" character varying(15) NOT NULL,
+    "level" character varying(15) ,
     "song_id" character varying(15) NOT NULL,
     "artist_id" character varying(15) NOT NULL,
     "session_id" integer,

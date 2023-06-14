@@ -52,15 +52,42 @@ TIMEFORMAT AS 'epochmillisecs';
 # );
 # """)
 
-# user_table_create = ("""
-#     CREATE TABLE "user_table" (
-#     "user_id" integer,
-#     "first_name" character varying(15) NOT NULL,
-#     "last_name" character varying(15) NOT NULL,
-#     "gender" character varying(15) NOT NULL,
-#     "level" character varying(15) NOT NULL
+# staging_songs_table_create = ("""
+#     CREATE TABLE "staging_song_table" (
+#     "artist_id" varchar,
+#     "artist_latitude" varchar,
+#     "artist_longitude" varchar,
+#     "artist_name" varchar,
+#     "song_id" varchar,
+#     "title" varchar,
+#     "duration" double precision,
+#     "year" integer
 # );
 # """)
+
+# artist_table_create = ("""
+#     CREATE TABLE "artist_table" (
+#     "artist_id" character varying(15) NOT NULL,
+#     "artist_name" character varying(15),
+#     "location" character varying(50),
+#     "lattitude" character varying(15),
+#     "longitude" character varying(15),
+#     PRIMARY KEY (artist_id)
+# );
+# """)
+                       
+    
+artist_table_insert = ("""
+INSERT INTO artist_table (artist_id, artist_name, location, lattitude, longitude)
+SELECT DISTINCT(e.artist_id) AS artist_id,
+       e.artist_name AS artist_name,
+       e.artist_latitude AS lattitude,
+       e.artist_longitude AS longitude,
+       a.location as location
+FROM staging_song_table e
+JOIN staging_event_table a  ON (e.artist_name = a.artist)
+Where e.artist_id is not null
+""")
 
 user_table_insert = ("""
 INSERT INTO user_table (user_id, first_name, last_name, gender, level)
@@ -91,6 +118,8 @@ Where e.userId is not null
 # Dealing with duplicates
 # SELECT user_id, COUNT(*) as count FROM user_table GROUP BY user_id ORDER BY count DESC;
 # SELECT user_id, first_name, last_name FROM user_table GROUP BY user_id, first_name, last_name ORDER BY user_id DESC;
+# SELECT artist_id, artist_name, location FROM artist_table GROUP BY artist_id, artist_name, location ORDER BY artist_id DESC;
+
 
 
 
@@ -103,8 +132,7 @@ songplay_table_insert = ("""
 song_table_insert = ("""
 """)
 
-artist_table_insert = ("""
-""")
+
 
 time_table_insert = ("""
 """)
@@ -114,7 +142,10 @@ copy_table_queries = [staging_events_copy, staging_songs_copy]
 
 
 # Query that inserts in the Fact and Dimension tables data that was copied within the staging tables
-insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, 
+insert_table_queries = [songplay_table_insert, 
+                        user_table_insert, 
+                        song_table_insert, 
+                        artist_table_insert, 
                         time_table_insert]
 
 def load_staging_tables(cur, conn):
