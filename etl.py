@@ -6,27 +6,7 @@ import psycopg2
 config = configparser.ConfigParser()
 config.read('dwh.cfg')
 
-staging_events_copy = ("""
-    COPY staging_event_table
-    FROM {}
-    iam_role {}
-    region 'us-west-2'
-    TIMEFORMAT AS 'epochmillisecs'
-    JSON {};
-""").format(config['S3']['LOG_DATA'], 
-            config['IAM_ROLE']['ARN'],
-            config['S3']['LOG_JSONPATH'])
 
-
-
-staging_songs_copy = ("""
-copy staging_song_table from {} 
-iam_role {}
-format as JSON 'auto'
-region 'us-west-2'
-TIMEFORMAT AS 'epochmillisecs';
-""").format(config['S3']['SONG_DATA'], 
-            config['IAM_ROLE']['ARN'])
 
 
 # staging_events_table_create= ("""
@@ -66,8 +46,29 @@ TIMEFORMAT AS 'epochmillisecs';
 # """)
 
 
+# song_table_create = ("""
+#     CREATE TABLE "song_table" (
+#     "song_id" varchar NOT NULL,
+#     "title" varchar NOT NULL,
+#     "artist_id" varchar NOT NULL,
+#     "year" integer,
+#     "duration" double precision,
+#     PRIMARY KEY (song_id),
+#     FOREIGN KEY (artist_id) REFERENCES artist_table(artist_id)
+# );
+# """)
 
 song_table_insert = ("""
+INSERT INTO song_table (song_id, title, artist_id, year, duration)
+SELECT DISTINCT(e.artist_id) AS artist_id,
+       e.song_id AS song_id,
+       e.title AS title,
+       e.artist_id AS artist_id,
+       e.year AS year,
+       e.duration AS duration
+
+FROM staging_song_table e
+Where e.song_id is not null
 """)
                        
     
@@ -130,8 +131,7 @@ songplay_table_insert = ("""
 time_table_insert = ("""
 """)
 
-# Query to copy data from the s3 buckets into the 2 staging tables
-copy_table_queries = [staging_events_copy, staging_songs_copy]
+
 
 
 # Query that inserts in the Fact and Dimension tables data that was copied within the staging tables
@@ -141,12 +141,7 @@ insert_table_queries = [songplay_table_insert,
                         artist_table_insert, 
                         time_table_insert]
 
-def load_staging_tables(cur, conn):
-    for query in copy_table_queries:
-        if query.strip() != "":
-            print("QUERY: {}".format(query))
-            cur.execute(query)
-            conn.commit()
+
 
 
 def insert_tables(cur, conn):
@@ -164,7 +159,7 @@ def main():
     conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(*config['CLUSTER'].values()))
     cur = conn.cursor()
     
-    load_staging_tables(cur, conn)
+    
     insert_tables(cur, conn)
 
     conn.close()

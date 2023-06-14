@@ -2,6 +2,10 @@ import configparser
 import psycopg2
 # from sql_queries import create_table_queries
 
+# CONFIG
+config = configparser.ConfigParser()
+config.read('dwh.cfg')
+
 # DROP TABLES
 
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_event_table;"
@@ -22,8 +26,8 @@ staging_songs_table_create = ("""
     "artist_name" varchar,
     "song_id" varchar,
     "title" varchar,
-    "duration" double precision,
-    "year" integer
+    "duration" varchar,
+    "year" varchar
 );
 """)
 
@@ -91,7 +95,7 @@ user_table_create = ("""
 """)
 
 artist_table_create = ("""
-    CREATE TABLE "artist_table" (
+    CREATE TABLE "artist_table" (git 
     "artist_id" varchar NOT NULL,
     "artist_name" varchar,
     "location" varchar,
@@ -106,8 +110,8 @@ song_table_create = ("""
     "song_id" varchar NOT NULL,
     "title" varchar NOT NULL,
     "artist_id" varchar NOT NULL,
-    "year" integer,
-    "duration" double precision,
+    "year" varchar,
+    "duration" varchar,
     PRIMARY KEY (song_id),
     FOREIGN KEY (artist_id) REFERENCES artist_table(artist_id)
 );
@@ -126,7 +130,7 @@ time_table_create = ("""
     "day" integer,
     "week" integer,
     "month" integer,
-    "year" integer,
+    "year" varchar,
     "weekday" double precision,
     PRIMARY KEY (start_time)
 );
@@ -149,6 +153,28 @@ songplay_table_create = ("""
     FOREIGN KEY (artist_id) REFERENCES artist_table(artist_id)
 );
 """)
+                         
+staging_events_copy = ("""
+    COPY staging_event_table
+    FROM {}
+    iam_role {}
+    region 'us-west-2'
+    TIMEFORMAT AS 'epochmillisecs'
+    JSON {};
+""").format(config['S3']['LOG_DATA'], 
+            config['IAM_ROLE']['ARN'],
+            config['S3']['LOG_JSONPATH'])
+
+
+
+staging_songs_copy = ("""
+copy staging_song_table from {} 
+iam_role {}
+format as JSON 'auto'
+region 'us-west-2'
+TIMEFORMAT AS 'epochmillisecs';
+""").format(config['S3']['SONG_DATA'], 
+            config['IAM_ROLE']['ARN'])
                      
 drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop,
                        song_table_drop, artist_table_drop, time_table_drop]
@@ -159,6 +185,8 @@ create_table_queries = [staging_events_table_create, staging_songs_table_create,
                         user_table_create,  artist_table_create, song_table_create, time_table_create, songplay_table_create, ]
 
 
+# Query to copy data from the s3 buckets into the 2 staging tables
+copy_table_queries = [staging_events_copy, staging_songs_copy]
 
 def drop_tables(cur, conn):
     print("Dropping Tables")
@@ -177,6 +205,15 @@ def create_tables(cur, conn):
             conn.commit()
 
 
+
+def load_staging_tables(cur, conn):
+    for query in copy_table_queries:
+        if query.strip() != "":
+            print("QUERY: {}".format(query))
+            cur.execute(query)
+            conn.commit()
+
+
 def main():
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
@@ -186,6 +223,7 @@ def main():
 
     drop_tables(cur, conn)
     create_tables(cur, conn)
+    load_staging_tables(cur, conn)
 
     conn.close()
 
