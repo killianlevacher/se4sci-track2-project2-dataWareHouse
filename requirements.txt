@@ -1,3 +1,4 @@
 psycopg2-binary
 sql_queries
 configparser
+jupyter
