@@ -1,6 +1,6 @@
 import configparser
 #IMPORTANT
-# Database errors can be found by running the query "select * from stl_load_errors" in the Redshift query editor
+# Database errors can be found by running the query "select * from stl_load_errors ORDER BY starttime DESC;" in the Redshift query editor
 
 # CONFIG
 config = configparser.ConfigParser()
@@ -44,13 +44,13 @@ time_table_drop = "DROP TABLE IF EXISTS time_table;"
 
 staging_songs_table_create = ("""
     CREATE TABLE "staging_song_table" (
-    "artist_id" character varying(15) NOT NULL,
-    "artist_latitude" character varying(15) NOT NULL,
-    "artist_longitude" character varying(15) NOT NULL,
-    "artist_name" character varying(15) NOT NULL,
-    "song_id" character varying(15) NOT NULL,
-    "title" character varying(15) NOT NULL,
-    "duration" double precision NOT NULL,
+    "artist_id" varchar,
+    "artist_latitude" varchar,
+    "artist_longitude" varchar,
+    "artist_name" varchar,
+    "song_id" varchar,
+    "title" varchar,
+    "duration" double precision,
     "year" integer
 );
 """)
@@ -66,7 +66,7 @@ staging_events_table_create= ("""
     "lastName" character varying(15) ,
     "length" double precision ,
     "level" character varying(15),
-    "location" character varying(15),
+    "location" character varying(50),
     "method" character varying(15),
     "page" character varying(15),
     "registration" double precision,
@@ -108,7 +108,7 @@ songplay_table_create = ("""
     "song_id" character varying(15) NOT NULL,
     "artist_id" character varying(15) NOT NULL,
     "session_id" integer,
-    "location" character varying(15),
+    "location" character varying(50),
     "user_agent" character varying(15)
 );
 """)
@@ -142,7 +142,7 @@ artist_table_create = ("""
     CREATE TABLE "artist_table" (
     "artist_id" character varying(15) NOT NULL,
     "artist_name" character varying(15) NOT NULL,
-    "location" character varying(15) NOT NULL,
+    "location" character varying(50) NOT NULL,
     "lattitude" character varying(15) NOT NULL,
     "longitude" character varying(15) 
 );
@@ -229,21 +229,50 @@ time_table_create = ("""
 # FROM stl_load_errors
 # WHERE query = <query ID>;
 
-staging_events_copy = ("""
-    COPY staging_event_table
-    FROM {}
-    iam_role {}
-    region 'us-west-2'
-    TIMEFORMAT AS 'epochmillisecs'
-    JSON {};
-""").format(config['S3']['LOG_DATA'], 
-            config['IAM_ROLE']['ARN'],
-            config['S3']['LOG_JSONPATH'])
 
+staging_events_copy = ("""
+""")
+                       
+# staging_events_copy = ("""
+#     COPY staging_event_table
+#     FROM {}
+#     iam_role {}
+#     region 'us-west-2'
+#     TIMEFORMAT AS 'epochmillisecs'
+#     JSON {};
+# """).format(config['S3']['LOG_DATA'], 
+#             config['IAM_ROLE']['ARN'],
+#             config['S3']['LOG_JSONPATH'])
+
+
+
+# staging_songs_copy = ("""
+#     COPY staging_song_table
+#     FROM {}
+#     iam_role {}
+#     region 'us-west-2'
+#     TIMEFORMAT AS 'epochmillisecs';
+# """).format(config['S3']['SONG_DATA'], 
+#             config['IAM_ROLE']['ARN'])
 
 
 staging_songs_copy = ("""
-""").format()
+copy staging_song_table from {} 
+iam_role {}
+format as JSON 'auto'
+region 'us-west-2'
+TIMEFORMAT AS 'epochmillisecs';
+""").format(config['S3']['SONG_DATA'], 
+            config['IAM_ROLE']['ARN'])
+
+
+# staging_songs_copy = ("""
+#     copy staging_songs from {}
+#     credentials aws_iam_role={}'
+#     format as JSON 'auto'
+#     region 'us-west-2'
+# """).format(config['S3']['SONG_DATA'], 
+#             config['IAM_ROLE']['ARN'])
 
 # INSERT QUERIES to create FINAL TABLES
 
