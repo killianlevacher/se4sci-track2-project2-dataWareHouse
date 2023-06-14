@@ -65,16 +65,10 @@ TIMEFORMAT AS 'epochmillisecs';
 # );
 # """)
 
-# artist_table_create = ("""
-#     CREATE TABLE "artist_table" (
-#     "artist_id" character varying(15) NOT NULL,
-#     "artist_name" character varying(15),
-#     "location" character varying(50),
-#     "lattitude" character varying(15),
-#     "longitude" character varying(15),
-#     PRIMARY KEY (artist_id)
-# );
-# """)
+
+
+song_table_insert = ("""
+""")
                        
     
 artist_table_insert = ("""
@@ -129,8 +123,7 @@ songplay_table_insert = ("""
 
 
 
-song_table_insert = ("""
-""")
+
 
 
 

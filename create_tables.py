@@ -89,20 +89,6 @@ user_table_create = ("""
     PRIMARY KEY (user_id)
 );
 """)
-                     
-
-song_table_create = ("""
-    CREATE TABLE "song_table" (
-    "song_id" character varying(15) NOT NULL,
-    "title" character varying(15) NOT NULL,
-    "artist_id" character varying(15) NOT NULL,
-    "year" integer,
-    "duration" double precision,
-    PRIMARY KEY (song_id)
-);
-""")
-                     
-
 
 artist_table_create = ("""
     CREATE TABLE "artist_table" (
@@ -113,7 +99,23 @@ artist_table_create = ("""
     "longitude" varchar,
     PRIMARY KEY (artist_id)
 );
+""")                
+
+song_table_create = ("""
+    CREATE TABLE "song_table" (
+    "song_id" varchar NOT NULL,
+    "title" varchar NOT NULL,
+    "artist_id" varchar NOT NULL,
+    "year" integer,
+    "duration" double precision,
+    PRIMARY KEY (song_id),
+    FOREIGN KEY (artist_id) REFERENCES artist_table(artist_id)
+);
 """)
+                     
+
+
+
                        
 
 # TODO find out what start time is from ts in 'epochmillisecs'
@@ -154,7 +156,7 @@ drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songp
 
 #Query that creates all the tables needed staging AND Fact and Dimension tables
 create_table_queries = [staging_events_table_create, staging_songs_table_create, 
-                        user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create, ]
+                        user_table_create,  artist_table_create, song_table_create, time_table_create, songplay_table_create, ]
 
 
 
