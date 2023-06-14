@@ -46,17 +46,40 @@ config.read('dwh.cfg')
 # """)
 
 
-# song_table_create = ("""
-#     CREATE TABLE "song_table" (
-#     "song_id" varchar NOT NULL,
-#     "title" varchar NOT NULL,
-#     "artist_id" varchar NOT NULL,
-#     "year" integer,
-#     "duration" double precision,
-#     PRIMARY KEY (song_id),
+# songplay_table_create = ("""
+#     CREATE TABLE "songplay_table" (
+#     "-----songplay_id" BIGINT NOT NULL,
+#     "start_time" BIGINT,
+#     "user_id" integer NOT NULL,
+#     "level" character varying(15) ,
+#     "song_id" character varying(15) NOT NULL,
+#     "artist_id" character varying(15) NOT NULL,
+#     "session_id" integer,
+#     "location" character varying(50),
+#     "user_agent" character varying(15),
+#     CONSTRAINT user_session_iid PRIMARY KEY (user_id,session_id),
+#     FOREIGN KEY (user_id) REFERENCES user_table(user_id),
+#     FOREIGN KEY (song_id) REFERENCES song_table(song_id),
 #     FOREIGN KEY (artist_id) REFERENCES artist_table(artist_id)
 # );
 # """)
+# SELECT DISTINCT (e.userId, e.sessionId),
+songplay_table_insert = ("""
+INSERT INTO songplay_table (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
+SELECT 
+    e.ts AS start_time,
+    e.userId AS user_id,
+    e.level AS level, 
+    a.song_id AS song_id, 
+    a.artist_id AS artist_id, 
+    e.sessionId AS session_id, 
+    e.location AS location, 
+    e.userAgent AS user_agent
+FROM staging_event_table e
+JOIN staging_song_table a  ON (e.song = a.title)
+Where (e.sessionId is not null)
+""")
+# and a.song_id is not null
 
 song_table_insert = ("""
 INSERT INTO song_table (song_id, title, artist_id, year, duration)
@@ -68,6 +91,7 @@ SELECT DISTINCT(e.song_id) AS song_id,
 
 FROM staging_song_table e
 Where e.song_id is not null
+
 """)
                        
     
@@ -118,8 +142,7 @@ Where e.userId is not null
 
 
 
-songplay_table_insert = ("""
-""")
+
 
 
 
@@ -135,9 +158,9 @@ time_table_insert = ("""
 
 # Query that inserts in the Fact and Dimension tables data that was copied within the staging tables
 insert_table_queries = [songplay_table_insert, 
-                        user_table_insert, 
-                        song_table_insert, 
-                        artist_table_insert, 
+                        # user_table_insert, 
+                        # song_table_insert, 
+                        # artist_table_insert, 
                         time_table_insert]
 
 

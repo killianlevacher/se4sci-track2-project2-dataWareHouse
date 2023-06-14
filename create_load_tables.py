@@ -95,7 +95,7 @@ user_table_create = ("""
 """)
 
 artist_table_create = ("""
-    CREATE TABLE "artist_table" (git 
+    CREATE TABLE "artist_table" (
     "artist_id" varchar NOT NULL,
     "artist_name" varchar,
     "location" varchar,
@@ -135,19 +135,20 @@ time_table_create = ("""
     PRIMARY KEY (start_time)
 );
 """)
-                     
+
+# TODO I think songplay_id needs to be generated
 songplay_table_create = ("""
     CREATE TABLE "songplay_table" (
-    "-----songplay_id" BIGINT NOT NULL,
+    "songplay_id" BIGINT NOT NULL IDENTITY(0,1),
     "start_time" BIGINT,
-    "user_id" integer NOT NULL,
-    "level" character varying(15) ,
-    "song_id" character varying(15) NOT NULL,
-    "artist_id" character varying(15) NOT NULL,
-    "session_id" integer,
-    "location" character varying(50),
-    "user_agent" character varying(15),
-    CONSTRAINT user_session_iid PRIMARY KEY (user_id,session_id),
+    "user_id" integer ,
+    "level" varchar ,
+    "song_id" varchar ,
+    "artist_id" varchar,
+    "session_id" varchar,
+    "location" varchar,
+    "user_agent" varchar,
+    CONSTRAINT user_session_iid PRIMARY KEY (songplay_id),
     FOREIGN KEY (user_id) REFERENCES user_table(user_id),
     FOREIGN KEY (song_id) REFERENCES song_table(song_id),
     FOREIGN KEY (artist_id) REFERENCES artist_table(artist_id)
