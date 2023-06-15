@@ -24,7 +24,7 @@ The purpose of this project is to use the song and event datasets available in S
 
 # How to Run the project
 
-## Setup
+## Setup
 * The project requires a running AWS Redshift cluster with connection and user account details placed in a file called `dwh.cfg` in the root directory
 
 ## Project File Structure
@@ -43,6 +43,6 @@ python etl.py
 * The scripts will create staging, fact and dimention tables. They will then load the dataset from S3 to the staging tables and finally extract this data to transform it into a star schema with fact and dimension tables. The script will finally provide a list of each table with the number of entries they contain.
 
 ## Useful SQL Queries to run
-# SELECT user_id, COUNT(*) as count FROM user_table GROUP BY user_id ORDER BY countcl DESC;
-# SELECT user_id, first_name, last_name FROM user_table GROUP BY user_id, first_name, last_name ORDER BY user_id DESC;
-# SELECT artist_id, artist_name, location FROM artist_table GROUP BY artist_id, artist_name, location ORDER BY artist_id DESC;
+`SELECT user_id, COUNT(*) as count FROM user_table GROUP BY user_id ORDER BY countcl DESC;`
+`SELECT user_id, first_name, last_name FROM user_table GROUP BY user_id, first_name, last_name ORDER BY user_id DESC;`
+`SELECT artist_id, artist_name, location FROM artist_table GROUP BY artist_id, artist_name, location ORDER BY artist_id DESC;`
