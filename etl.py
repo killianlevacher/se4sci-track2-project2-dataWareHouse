@@ -1,6 +1,5 @@
 import configparser
 import psycopg2
-# from sql_queries import copy_table_queries, insert_table_queries
 
 # CONFIG
 config = configparser.ConfigParser()
@@ -75,18 +74,6 @@ FROM staging_event_table e
 Where e.userId is not null
 """)
                      
-### Useful SQL Queries
-# Dealing with duplicates
-# SELECT user_id, COUNT(*) as count FROM user_table GROUP BY user_id ORDER BY countcl DESC;
-# SELECT user_id, first_name, last_name FROM user_table GROUP BY user_id, first_name, last_name ORDER BY user_id DESC;
-# SELECT artist_id, artist_name, location FROM artist_table GROUP BY artist_id, artist_name, location ORDER BY artist_id DESC;
-
-
-
-
-
-
-
 
 # Query that inserts in the Fact and Dimension tables data that was copied within the staging tables
 insert_table_queries = [

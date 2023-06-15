@@ -1,13 +1,11 @@
 import configparser
 import psycopg2
-# from sql_queries import create_table_queries
 
 # CONFIG
 config = configparser.ConfigParser()
 config.read('dwh.cfg')
 
 # DROP TABLES
-
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_event_table;"
 staging_songs_table_drop = "DROP TABLE IF EXISTS staging_song_table;"
 songplay_table_drop = "DROP TABLE IF EXISTS songplay_table;"
@@ -61,28 +59,6 @@ staging_events_table_create= ("""
 
 ################################# FACT TABLES
 
-# 1. **songplays** - records in event data associated with song plays i.e. records with page `NextSong`
-#     - *songplay_id, start_time, user_id, level, song_id, artist_id, session_id, location, user_agent*
-
-# ### **Dimension Tables**
-
-# 1. **users** - users in the app
-#     - *user_id, first_name, last_name, gender, level*
-# 2. **songs** - songs in music database
-#     - *song_id, title, artist_id, year, duration*
-# 3. **artists** - artists in music database
-#     - *artist_id, name, location, lattitude, longitude*
-# 4. **time** - timestamps of records in **songplays** broken down into specific units
-#     - *start_time, hour, day, week, month, year, weekday*
-
-
-##### TODO Make sure to create primary keys
-# TODO find out what start time is from ts in 'epochmillisecs'
-# TODO songplay_id should be auto generated 
-
-                         
-
-
 user_table_create = ("""
     CREATE TABLE "user_table" (
     "user_id" integer NOT NULL,
@@ -117,12 +93,6 @@ song_table_create = ("""
 );
 """)
                      
-
-
-
-                       
-
-# TODO find out what start time is from ts in 'epochmillisecs'
 time_table_create = ("""
     CREATE TABLE "time_table" (
     "start_time" TIMESTAMP NOT NULL,
@@ -136,7 +106,6 @@ time_table_create = ("""
 );
 """)
 
-# TODO I think songplay_id needs to be generated
 songplay_table_create = ("""
     CREATE TABLE "songplay_table" (
     "songplay_id" BIGINT NOT NULL IDENTITY(0,1),
