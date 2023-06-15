@@ -27,7 +27,8 @@ The purpose of this project is to use the song and event datasets available in S
 ## Setup
 * The project requires a running AWS Redshift cluster with connection and user account details placed in a file called `dwh.cfg` in the root directory
 
-* Install pipEnv: `pip install --user pipenv`
+* Install pipEnv: `brew upgrade pipenv`
+* Install all project dependencies from pipFile.lock: `pipenv synch`
 
 ## Project File Structure
 * `README.md`: This file describing the project and how to run it
