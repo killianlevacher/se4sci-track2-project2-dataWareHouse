@@ -125,6 +125,9 @@ final_count_queries = [
 ]
 
 def insert_tables(cur, conn):
+    '''
+    Runs all the SQL queries required to insert the data from the staging tables into the fact and dimension tables
+    '''
     for query in insert_table_queries:
         if query.strip() != "":
             print("QUERY: {}".format(query))
@@ -132,6 +135,9 @@ def insert_tables(cur, conn):
             conn.commit()
 
 def run_final_count_queries(cur, conn):
+    '''
+    Runs a set of queries to count the number of entries in each table
+    '''
     print("Running count queries")
     for query in final_count_queries:
         if query.strip() != "":
@@ -145,6 +151,9 @@ def run_final_count_queries(cur, conn):
                 row = cur.fetchone()
 
 def main():
+    '''
+    Extracts data located in the staging tables and inserts them properly in the fact and dimenension tables
+    '''
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
 

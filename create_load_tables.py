@@ -124,6 +124,9 @@ songplay_table_create = ("""
 );
 """)
                          
+
+################################# STAGING TABLES
+                         
 staging_events_copy = ("""
     COPY staging_event_table
     FROM {}
@@ -134,8 +137,6 @@ staging_events_copy = ("""
 """).format(config['S3']['LOG_DATA'], 
             config['IAM_ROLE']['ARN'],
             config['S3']['LOG_JSONPATH'])
-
-
 
 staging_songs_copy = ("""
 copy staging_song_table from {} 
@@ -159,6 +160,9 @@ create_table_queries = [staging_events_table_create, staging_songs_table_create,
 copy_table_queries = [staging_events_copy, staging_songs_copy]
 
 def drop_tables(cur, conn):
+    '''
+    Drops any tables previously created to get a fresh start
+    '''
     print("Dropping Tables")
     for query in drop_table_queries:
         print("QUERY: {}".format(query))
@@ -167,6 +171,9 @@ def drop_tables(cur, conn):
 
 
 def create_tables(cur, conn):
+    '''
+    Creates all the tables required for the project
+    '''
     print("Creating Tables")
     for query in create_table_queries:
         if query.strip() != "":
@@ -177,6 +184,9 @@ def create_tables(cur, conn):
 
 
 def load_staging_tables(cur, conn):
+    '''
+    Loads staging tables with dataset available in S3
+    '''
     for query in copy_table_queries:
         if query.strip() != "":
             print("QUERY: {}".format(query))
@@ -185,6 +195,13 @@ def load_staging_tables(cur, conn):
 
 
 def main():
+    '''
+    Main function that 
+    a) drops any table created previously, 
+    b) creates all the tables necessary for the project and 
+    c) loads the datasets inside the staging tables
+    Once this script is run, the tables are ETL ready
+    '''
     config = configparser.ConfigParser()
     config.read('dwh.cfg')
 
