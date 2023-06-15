@@ -23,10 +23,16 @@ The purpose of this project is to use the song and event datasets available in S
 
 
 # How to Run the project
+
 ## Setup
 * The project requires a running AWS Redshift cluster with connection and user account details placed in a file called `dwh.cfg` in the root directory
 
 ## Project File Structure
+* `README.md`: This file describing the project and how to run it
+* `create_load_tables.py`: Creates all tables necessary for this project and loads the dataset inside the staging tables
+* `etl.py`: Extracts data in the staging tables into the star schema
+* `Database Debug.ipynb`: Useful jupyter notebook for querying the DBs and displaying results
+* `requirements.txt`: Requirement file containing all necessary project dependencies
 
 ## Run the project
 * To run the project simply run the 2 following commands:
