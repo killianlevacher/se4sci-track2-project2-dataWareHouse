@@ -46,24 +46,36 @@ config.read('dwh.cfg')
 # """)
 
 
-# songplay_table_create = ("""
-#     CREATE TABLE "songplay_table" (
-#     "-----songplay_id" BIGINT NOT NULL,
-#     "start_time" BIGINT,
-#     "user_id" integer NOT NULL,
-#     "level" character varying(15) ,
-#     "song_id" character varying(15) NOT NULL,
-#     "artist_id" character varying(15) NOT NULL,
-#     "session_id" integer,
-#     "location" character varying(50),
-#     "user_agent" character varying(15),
-#     CONSTRAINT user_session_iid PRIMARY KEY (user_id,session_id),
-#     FOREIGN KEY (user_id) REFERENCES user_table(user_id),
-#     FOREIGN KEY (song_id) REFERENCES song_table(song_id),
-#     FOREIGN KEY (artist_id) REFERENCES artist_table(artist_id)
+
+# time_table_create = ("""
+#     CREATE TABLE "time_table" (
+#     "start_time" BIGINT NOT NULL,
+#     "hour" integer,
+#     "day" integer,
+#     "week" integer,
+#     "month" integer,
+#     "year" varchar,
+#     "weekday" double precision,
+#     PRIMARY KEY (start_time)
 # );
 # """)
-# SELECT DISTINCT (e.userId, e.sessionId),
+
+
+######### TODO TEST THIS 
+
+time_table_insert = ("""
+INSERT INTO time_table (start_time, hour, day, week, month, year, weekday)
+    e.ts as start_time,
+    EXTRACT(year FROM e.ts) AS year,
+    EXTRACT(month FROM e.ts) AS month,
+    EXTRACT(week FROM e.ts) AS week,
+    EXTRACT(day FROM e.ts) AS day,
+    EXTRACT(day FROM e.ts)AS hour,
+    WEEKDAY(date(e.ts) AS weekday                              
+FROM staging_event_table e
+""")
+
+
 songplay_table_insert = ("""
 INSERT INTO songplay_table (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
 SELECT 
@@ -145,26 +157,54 @@ Where e.userId is not null
 
 
 
-
-
-
-
-
-time_table_insert = ("""
-""")
-
-
-
-
 # Query that inserts in the Fact and Dimension tables data that was copied within the staging tables
-insert_table_queries = [songplay_table_insert, 
+insert_table_queries = [
                         # user_table_insert, 
+                        # songplay_table_insert, 
                         # song_table_insert, 
                         # artist_table_insert, 
-                        time_table_insert]
+                        # time_table_insert
+                        ]
 
 
 
+count_staging_event_table_query = ("""
+SELECT COUNT(*) FROM staging_event_table
+ """)
+
+count_staging_song_table_query = ("""
+SELECT COUNT(*) FROM staging_song_table
+ """)
+
+count_songplay_query = ("""
+SELECT COUNT(*) FROM songplay_table
+ """)
+
+count_user_table_query = ("""
+SELECT COUNT(*) FROM user_table
+ """)
+
+count_song_table_query = ("""
+SELECT COUNT(*) FROM song_table
+ """)
+
+count_artist_table_query = ("""
+SELECT COUNT(*) FROM artist_table
+ """)
+
+count_time_table_query = ("""
+SELECT COUNT(*) FROM time_table
+ """)
+
+final_count_queries = [
+    count_staging_event_table_query,
+    count_staging_song_table_query,
+    count_songplay_query, 
+    count_user_table_query, 
+    count_song_table_query, 
+    count_artist_table_query, 
+    count_time_table_query
+]
 
 def insert_tables(cur, conn):
     for query in insert_table_queries:
@@ -173,6 +213,18 @@ def insert_tables(cur, conn):
             cur.execute(query)
             conn.commit()
 
+def run_final_count_queries(cur, conn):
+    print("Running count queries")
+    for query in final_count_queries:
+        if query.strip() != "":
+            print("QUERY: {}".format(query))
+            cur.execute(query)
+            conn.commit()
+            row = cur.fetchone()
+            while row:
+                print("{} entries".format(row[0]))
+                print()
+                row = cur.fetchone()
 
 def main():
     config = configparser.ConfigParser()
@@ -182,7 +234,8 @@ def main():
     cur = conn.cursor()
     
     
-    insert_tables(cur, conn)
+    # insert_tables(cur, conn)
+    run_final_count_queries(cur, conn)
 
     conn.close()
 
