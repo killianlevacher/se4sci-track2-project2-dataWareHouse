@@ -49,7 +49,7 @@ staging_events_table_create= ("""
     "sessionId" integer,
     "song" varchar,
     "status" integer,
-    "ts" BIGINT,
+    "ts" TIMESTAMP,
     "userAgent" varchar,
     "userId" integer 
 );
@@ -125,7 +125,7 @@ song_table_create = ("""
 # TODO find out what start time is from ts in 'epochmillisecs'
 time_table_create = ("""
     CREATE TABLE "time_table" (
-    "start_time" BIGINT NOT NULL,
+    "start_time" TIMESTAMP NOT NULL,
     "hour" integer,
     "day" integer,
     "week" integer,
@@ -140,7 +140,7 @@ time_table_create = ("""
 songplay_table_create = ("""
     CREATE TABLE "songplay_table" (
     "songplay_id" BIGINT NOT NULL IDENTITY(0,1),
-    "start_time" BIGINT,
+    "start_time" TIMESTAMP,
     "user_id" integer ,
     "level" varchar ,
     "song_id" varchar ,

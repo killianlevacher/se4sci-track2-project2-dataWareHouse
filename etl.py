@@ -7,71 +7,16 @@ config = configparser.ConfigParser()
 config.read('dwh.cfg')
 
 
-
-
-# staging_events_table_create= ("""
-#     CREATE TABLE "staging_event_table" (
-#     "artist" varchar,
-#     "auth" varchar,
-#     "firstName" varchar,
-#     "gender" varchar,
-#     "itemInSession" integer ,
-#     "lastName" varchar,
-#     "length" double precision ,
-#     "level" varchar,
-#     "location" varchar,
-#     "method" varchar,
-#     "page" varchar,
-#     "registration" double precision,
-#     "sessionId" integer,
-#     "song" varchar,
-#     "status" integer,
-#     "ts" BIGINT,
-#     "userAgent" varchar,
-#     "userId" integer 
-# );
-# """)
-
-# staging_songs_table_create = ("""
-#     CREATE TABLE "staging_song_table" (
-#     "artist_id" varchar,
-#     "artist_latitude" varchar,
-#     "artist_longitude" varchar,
-#     "artist_name" varchar,
-#     "song_id" varchar,
-#     "title" varchar,
-#     "duration" double precision,
-#     "year" integer
-# );
-# """)
-
-
-
-# time_table_create = ("""
-#     CREATE TABLE "time_table" (
-#     "start_time" BIGINT NOT NULL,
-#     "hour" integer,
-#     "day" integer,
-#     "week" integer,
-#     "month" integer,
-#     "year" varchar,
-#     "weekday" double precision,
-#     PRIMARY KEY (start_time)
-# );
-# """)
-
-
-######### TODO TEST THIS 
-
 time_table_insert = ("""
 INSERT INTO time_table (start_time, hour, day, week, month, year, weekday)
+SELECT
     e.ts as start_time,
-    EXTRACT(year FROM e.ts) AS year,
-    EXTRACT(month FROM e.ts) AS month,
-    EXTRACT(week FROM e.ts) AS week,
-    EXTRACT(day FROM e.ts) AS day,
-    EXTRACT(day FROM e.ts)AS hour,
-    WEEKDAY(date(e.ts) AS weekday                              
+    EXTRACT(hour FROM CAST(e.ts AS DATE)) AS hour,
+    EXTRACT(day FROM CAST(e.ts AS DATE)) AS day,
+    EXTRACT(week FROM CAST(e.ts AS DATE)) AS week,
+    EXTRACT(month FROM CAST(e.ts AS DATE)) AS month,
+    EXTRACT(year FROM CAST(e.ts AS DATE)) AS year,
+    DATE_PART(dayofweek, e.ts) AS weekday
 FROM staging_event_table e
 """)
 
@@ -91,7 +36,7 @@ FROM staging_event_table e
 JOIN staging_song_table a  ON (e.song = a.title)
 Where (e.sessionId is not null)
 """)
-# and a.song_id is not null
+
 
 song_table_insert = ("""
 INSERT INTO song_table (song_id, title, artist_id, year, duration)
@@ -130,23 +75,9 @@ FROM staging_event_table e
 Where e.userId is not null
 """)
                      
-# INSERT QUERIES to create FINAL TABLES
-
-# INSERT INTO dimDate (date_key, date, year, quarter, month, day, week, is_weekend)
-# SELECT DISTINCT(TO_CHAR(payment_date :: DATE, 'yyyyMMDD')::integer) AS date_key,
-#        date(payment_date)                                           AS date,
-#        EXTRACT(year FROM payment_date)                              AS year,
-#        EXTRACT(quarter FROM payment_date)                           AS quarter,
-#        EXTRACT(month FROM payment_date)                             AS month,
-#        EXTRACT(day FROM payment_date)                               AS day,
-#        EXTRACT(week FROM payment_date)                              AS week,
-#        CASE WHEN EXTRACT(ISODOW FROM payment_date) IN (6, 7) THEN true ELSE false END AS is_weekend
-# FROM payment;
-
-
 ### Useful SQL Queries
 # Dealing with duplicates
-# SELECT user_id, COUNT(*) as count FROM user_table GROUP BY user_id ORDER BY count DESC;
+# SELECT user_id, COUNT(*) as count FROM user_table GROUP BY user_id ORDER BY countcl DESC;
 # SELECT user_id, first_name, last_name FROM user_table GROUP BY user_id, first_name, last_name ORDER BY user_id DESC;
 # SELECT artist_id, artist_name, location FROM artist_table GROUP BY artist_id, artist_name, location ORDER BY artist_id DESC;
 
@@ -159,11 +90,11 @@ Where e.userId is not null
 
 # Query that inserts in the Fact and Dimension tables data that was copied within the staging tables
 insert_table_queries = [
-                        # user_table_insert, 
-                        # songplay_table_insert, 
-                        # song_table_insert, 
-                        # artist_table_insert, 
-                        # time_table_insert
+                        user_table_insert, 
+                        songplay_table_insert, 
+                        song_table_insert, 
+                        artist_table_insert,
+                        time_table_insert
                         ]
 
 
@@ -234,7 +165,7 @@ def main():
     cur = conn.cursor()
     
     
-    # insert_tables(cur, conn)
+    insert_tables(cur, conn)
     run_final_count_queries(cur, conn)
 
     conn.close()
