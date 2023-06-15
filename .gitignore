@@ -1,4 +1,4 @@
-dwh.cfg
+dwh_local.cfg
 __pycache__/
 .vscode/
 venv/

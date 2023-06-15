@@ -33,6 +33,7 @@ The purpose of this project is to use the song and event datasets available in S
 * `etl.py`: Extracts data in the staging tables into the star schema
 * `Database Debug.ipynb`: Useful jupyter notebook for querying the DBs and displaying results
 * `requirements.txt`: Requirement file containing all necessary project dependencies
+* `dwh.cfg`: contains all configurations necessary to run the project
 
 ## Run the project
 * To run the project simply run the 2 following commands:
