@@ -17,8 +17,9 @@ time_table_drop = "DROP TABLE IF EXISTS time_table;"
 staging_songs_table_create = ("""
     CREATE TABLE "staging_song_table" (
     "artist_id" varchar,
-    "artist_latitude" varchar,
-    "artist_longitude" varchar,
+    "artist_latitude" DECIMAL,
+    "artist_longitude" DECIMAL,
+    "artist_location" varchar, 
     "artist_name" varchar,
     "song_id" varchar,
     "title" varchar,
@@ -26,7 +27,7 @@ staging_songs_table_create = ("""
     "year" varchar
 );
 """)
-
+                              
                               
 staging_events_table_create= ("""
     CREATE TABLE "staging_event_table" (
@@ -73,8 +74,8 @@ artist_table_create = ("""
     "artist_id" varchar NOT NULL,
     "artist_name" varchar,
     "location" varchar,
-    "lattitude" varchar,
-    "longitude" varchar,
+    "latitude" DECIMAL NOT NULL,
+    "longitude" DECIMAL NOT NULL,
     PRIMARY KEY (artist_id)
 );
 """)                
@@ -140,7 +141,7 @@ staging_songs_copy = ("""
 copy staging_song_table from {} 
 iam_role {}
 format as JSON 'auto'
-region 'us-west-2'
+region 'us-west-2' 
 TIMEFORMAT AS 'epochmillisecs';
 """).format(config['S3']['SONG_DATA'], 
             config['IAM_ROLE']['ARN'])
@@ -204,16 +205,44 @@ Where e.song_id is not null
 
 """)
                        
-    
+    # cast(e.artist_longitude as decimal)
+    #        e.artist_latitude AS lattitude,
+    #    e.artist_longitude AS longitude,
+# artist_table_insert = ("""
+# INSERT INTO artist_table (artist_id, artist_name, location, lattitude, longitude)
+# SELECT DISTINCT(e.artist_id) AS artist_id,
+#        e.artist_name AS artist_name,
+#        cast(e.artist_latitude as decimal) as latitude,
+#        cast(e.artist_longitude as decimal) as longitude,
+#        a.location as location
+# FROM staging_song_table e
+# JOIN staging_event_table a  ON (e.artist_name = a.artist)
+# Where e.artist_id is not null
+# """)
+
+# staging_songs_table_create = ("""
+#     CREATE TABLE "staging_song_table" (
+#     "artist_id" varchar,
+#     "artist_latitude" varchar,
+#     "artist_longitude" varchar,
+#     "artist_name" varchar,
+#     "song_id" varchar,
+#     "title" varchar,
+#     "duration" varchar,
+#     "year" varchar
+# );
+# """)
+#  cast(e.artist_latitude as float)
+#        e.artist_latitude as latitude,
+    #    e.artist_longitude as longitude,
 artist_table_insert = ("""
-INSERT INTO artist_table (artist_id, artist_name, location, lattitude, longitude)
+INSERT INTO artist_table (artist_id, artist_name, location, latitude, longitude)
 SELECT DISTINCT(e.artist_id) AS artist_id,
        e.artist_name AS artist_name,
-       e.artist_latitude AS lattitude,
-       e.artist_longitude AS longitude,
-       a.location as location
+       cast(e.artist_latitude as DECIMAL) as latitude,
+       cast(e.artist_longitude as DECIMAL) as longitude,
+       e.artist_location as location
 FROM staging_song_table e
-JOIN staging_event_table a  ON (e.artist_name = a.artist)
 Where e.artist_id is not null
 """)
 
