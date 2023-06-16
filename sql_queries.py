@@ -26,8 +26,7 @@ staging_songs_table_create = ("""
     "duration" varchar,
     "year" varchar
 );
-""")
-                              
+""")                  
                               
 staging_events_table_create= ("""
     CREATE TABLE "staging_event_table" (
@@ -223,28 +222,31 @@ Where e.song_id is not null
 # staging_songs_table_create = ("""
 #     CREATE TABLE "staging_song_table" (
 #     "artist_id" varchar,
-#     "artist_latitude" varchar,
-#     "artist_longitude" varchar,
+#     "artist_latitude" DECIMAL,
+#     "artist_longitude" DECIMAL,
+#     "artist_location" varchar, 
 #     "artist_name" varchar,
 #     "song_id" varchar,
 #     "title" varchar,
 #     "duration" varchar,
 #     "year" varchar
 # );
-# """)
-#  cast(e.artist_latitude as float)
-#        e.artist_latitude as latitude,
-    #    e.artist_longitude as longitude,
-    # e.artist_location as location
+# """)        
+
 artist_table_insert = ("""
-INSERT INTO artist_table (artist_id, artist_name, latitude, longitude)
+INSERT INTO artist_table (artist_id, artist_name, location, latitude, longitude)
 SELECT DISTINCT(e.artist_id) AS artist_id,
        e.artist_name AS artist_name,
+       e.artist_location as location,
        cast(e.artist_latitude as DECIMAL) as latitude,
        cast(e.artist_longitude as DECIMAL) as longitude
 FROM staging_song_table e
 Where e.artist_id is not null
 """)
+
+
+# "artist_location" varchar, 
+# "location" varchar,        
 
 user_table_insert = ("""
 INSERT INTO user_table (user_id, first_name, last_name, gender, level)
