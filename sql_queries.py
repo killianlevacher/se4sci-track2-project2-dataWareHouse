@@ -74,8 +74,8 @@ artist_table_create = ("""
     "artist_id" varchar NOT NULL,
     "artist_name" varchar,
     "location" varchar,
-    "latitude" DECIMAL NOT NULL,
-    "longitude" DECIMAL NOT NULL,
+    "latitude" DECIMAL,
+    "longitude" DECIMAL,
     PRIMARY KEY (artist_id)
 );
 """)                
@@ -235,13 +235,13 @@ Where e.song_id is not null
 #  cast(e.artist_latitude as float)
 #        e.artist_latitude as latitude,
     #    e.artist_longitude as longitude,
+    # e.artist_location as location
 artist_table_insert = ("""
-INSERT INTO artist_table (artist_id, artist_name, location, latitude, longitude)
+INSERT INTO artist_table (artist_id, artist_name, latitude, longitude)
 SELECT DISTINCT(e.artist_id) AS artist_id,
        e.artist_name AS artist_name,
        cast(e.artist_latitude as DECIMAL) as latitude,
-       cast(e.artist_longitude as DECIMAL) as longitude,
-       e.artist_location as location
+       cast(e.artist_longitude as DECIMAL) as longitude
 FROM staging_song_table e
 Where e.artist_id is not null
 """)
